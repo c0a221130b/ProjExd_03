@@ -94,7 +94,7 @@ class Bird:
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):  # 何かキーが押されていたら
             self.img = self.imgs[tuple(sum_mv)]
-            self.dire = tuple(sum_mv)
+            self.dire = tuple(sum_mv)  # こうかとんの向きを伝える
         screen.blit(self.img, self.rct)
 
 
@@ -176,6 +176,23 @@ class Beam:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    '''
+    スコアを表示させるクラス
+    '''
+    def __init__(self):
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.color = (0, 0, 255)
+        self.score = 0
+    def update(self, screen:pg.Surface):
+        '''
+        スコアを更新する
+        引数 screen : 画面Surface
+        '''
+        self.txt = self.font.render(f"スコア : {self.score}", True, self.color)
+        screen.blit(self.txt, [100, HEIGHT-50])
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -184,6 +201,7 @@ def main():
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
     beam = None
     explosions = []
+    score = Score()
     
     clock = pg.time.Clock()
     tmr = 0
@@ -212,6 +230,7 @@ def main():
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
+                    score.score += 1
                     #time.sleep(1)
         bombs = [bomb for bomb in bombs if bomb is not None]
 
@@ -229,7 +248,8 @@ def main():
                 if explosion.life <= 0:
                     explosions[i] = None
                 explosion.update(screen)
-                
+        print(score.score)
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
