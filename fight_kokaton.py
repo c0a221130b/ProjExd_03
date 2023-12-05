@@ -129,6 +129,28 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+# 課題1
+class Explosion:
+    def __init__(self, bomb: Bomb, life: int):
+        self.imgs = [
+            pg.image.load(f"{MAIN_DIR}/fig/explosion.gif"),
+            pg.transform.flip(pg.image.load(f"{MAIN_DIR}/fig/explosion.gif"), True, True),
+        ]
+        self.img = self.imgs[0]
+        self.rct = self.img.get_rect()
+        self.rct.center = bomb.rct.center
+        self.life = life
+        
+    def update(self, screen: pg.Surface):
+        """
+        爆発経過時間lifeの値に応じて、画像リストを交互に切り替えて爆発を演出
+        引数 screen：画面Surface
+        """
+        self.life -= 1
+        self.img = self.imgs[self.life % 2]
+        screen.blit(self.img, self.rct)
+
+
 class Beam:
     def __init__(self, bird: Bird):
         self.img = pg.image.load(f"{MAIN_DIR}/fig/beam.png")
@@ -153,7 +175,8 @@ def main():
     bird = Bird(3, (900, 400))
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]
     beam = None
-
+    explosions = []
+    
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -176,6 +199,8 @@ def main():
         
             if beam is not None:
                 if beam.rct.colliderect(bomb.rct):
+                    explosion = Explosion(bomb, 10)  #explosionインスタンス生成
+                    explosions.append(explosion)  #explosionインスタンスをリストへ追加
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
@@ -190,6 +215,13 @@ def main():
         for bomb in bombs:
             if bomb is not None:
                 bomb.update(screen)
+        
+        for i, explosion in enumerate(explosions):  #explosionのupdate
+            if explosion is not None:
+                if explosion.life <= 0:
+                    explosions[i] = None
+                explosion.update(screen)
+                
         pg.display.update()
         tmr += 1
         clock.tick(50)
