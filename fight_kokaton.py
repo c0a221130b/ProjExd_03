@@ -166,17 +166,17 @@ def main():
                 time.sleep(1)
                 return
         
-        if beam is not None:
-            if bomb is not None:
-                if beam.rct.collidedict(bomb.rct):
-                    beam = None
-                    bomb = None
+        if beam is not None and bomb is not None:
+            if beam.rct.colliderect(bomb.rct):
+                beam = None
+                bomb = None
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        bomb.update(screen)
         if beam != None:
             beam.update(screen)
+        if bomb is not None:
+            bomb.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
