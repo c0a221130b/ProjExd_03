@@ -219,6 +219,7 @@ def main():
                 if bird.rct.colliderect(bomb.rct):
                     # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                     bird.change_img(8, screen)
+                    score.update(screen)  # 終了時にもスコアが表示されるように変更
                     pg.display.update()
                     time.sleep(1)
                     return
@@ -248,7 +249,6 @@ def main():
                 if explosion.life <= 0:
                     explosions[i] = None
                 explosion.update(screen)
-        print(score.score)
         score.update(screen)
         pg.display.update()
         tmr += 1
