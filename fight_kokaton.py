@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import time
+import math
 
 import pygame as pg
 
@@ -66,6 +67,7 @@ class Bird:
         self.img = self.imgs[(+5, 0)]
         self.rct = self.img.get_rect()
         self.rct.center = xy
+        self.dire = (+5, 0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -92,6 +94,7 @@ class Bird:
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):  # 何かキーが押されていたら
             self.img = self.imgs[tuple(sum_mv)]
+            self.dire = tuple(sum_mv)
         screen.blit(self.img, self.rct)
 
 
@@ -132,6 +135,9 @@ class Bomb:
 # 課題1
 class Explosion:
     def __init__(self, bomb: Bomb, life: int):
+        '''
+        引数に基づき、爆発エフェクトを作成する
+        '''
         self.imgs = [
             pg.image.load(f"{MAIN_DIR}/fig/explosion.gif"),
             pg.transform.flip(pg.image.load(f"{MAIN_DIR}/fig/explosion.gif"), True, True),
@@ -155,10 +161,12 @@ class Beam:
     def __init__(self, bird: Bird):
         self.img = pg.image.load(f"{MAIN_DIR}/fig/beam.png")
         self.rct = self.img.get_rect()
-        self.rct.centery = bird.rct.centery   # こうかとんの中心座標を取得
-        self.rct.centerx = bird.rct.centerx+bird.rct.width/2
-        self.vx, self.vy = +5, 0
-        
+        self.vx , self.vy = bird.dire
+        self.rct.centery = bird.rct.centery + bird.rct.height * self.vy/5   # こうかとんの中心座標を取得
+        self.rct.centerx = bird.rct.centerx+bird.rct.width * self.vx/5
+        self.theta = math.atan2(-self.vy, self.vx)
+        self.theta = math.degrees(self.theta)
+        self.img = pg.transform.rotozoom(self.img, self.theta, 1.0)
     def update(self, screen: pg.Surface):
         """
         ビームを速度ベクトルself.vx, self.vyに基づき移動させる
@@ -199,7 +207,7 @@ def main():
         
             if beam is not None:
                 if beam.rct.colliderect(bomb.rct):
-                    explosion = Explosion(bomb, 10)  #explosionインスタンス生成
+                    explosion = Explosion(bomb, 25)  #explosionインスタンス生成
                     explosions.append(explosion)  #explosionインスタンスをリストへ追加
                     beam = None
                     bombs[i] = None
